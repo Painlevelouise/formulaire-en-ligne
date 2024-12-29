@@ -117,7 +117,7 @@
     </header>
 
     <main>
-        <form id="formulaire-commande">
+        <form id="formulaire-commande" method="POST" action="traitement.php">
             <div class="form-group">
                 <label for="nom">Nom :</label>
                 <input type="text" id="nom" name="nom" placeholder="Votre nom" required>
@@ -153,6 +153,9 @@
                 <input type="number" id="quantite" name="quantite" min="1" value="1">
             </div>
             <button type="button" class="add-item" onclick="ajouterCommande()">Ajouter cet article</button>
+
+            <input type="hidden" name="commandes" id="input-commandes">
+            <button type="submit" class="valider-commande">Valider la commande totale</button>
         </form>
 
         <table id="tableau-commandes">
@@ -173,14 +176,12 @@
         <div class="prix-total">
             Total : <span id="prix-total">0.00</span> €
         </div>
-
-        <button class="valider-commande" onclick="validerCommande()">Valider la commande totale</button>
     </main>
 
     <script>
         let commandes = [];
 
-        async function ajouterCommande() {
+        function ajouterCommande() {
             const painElement = document.getElementById('pain');
             const pain = painElement.value;
             const prixParKg = parseFloat(painElement.options[painElement.selectedIndex].getAttribute('data-prix'));
@@ -226,40 +227,9 @@
             document.getElementById('prix-total').textContent = total.toFixed(2);
         }
 
-        async function validerCommande() {
-            if (commandes.length === 0) {
-                alert('Aucune commande à valider.');
-                return;
-            }
-
-            const nom = document.getElementById('nom').value;
-            const prenom = document.getElementById('prenom').value;
-
-            if (!nom || !prenom) {
-                alert('Veuillez saisir votre nom et prénom.');
-                return;
-            }
-
-            try {
-                const response = await fetch('https://script.google.com/macros/s/AKfycbxHBslfzTjA_xkJdO26rVgstYesUkJq7IgPjCZCldfqmJ2jXJCKptjsfmozjNWYzd1u_Q/exec', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nom, prenom, commandes }),
-                });
-
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    alert('Commande validée et enregistrée avec succès !');
-                    commandes = [];
-                    afficherCommandes();
-                } else {
-                    alert(`Erreur : ${result.message}`);
-                }
-            } catch (error) {
-                alert(`Erreur : ${error.message}`);
-            }
-        }
+        document.getElementById("formulaire-commande").addEventListener("submit", function (event) {
+            document.getElementById("input-commandes").value = JSON.stringify(commandes);
+        });
     </script>
 </body>
 </html>
